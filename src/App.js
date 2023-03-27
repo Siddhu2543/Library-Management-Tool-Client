@@ -17,7 +17,6 @@ import "./styles.css";
 const getUser = () => {
   const user = localStorage.getItem("USER");
   return user;
-  // return "user";
 };
 
 export const UserContext = createContext();
