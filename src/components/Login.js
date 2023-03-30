@@ -12,7 +12,8 @@ const Login = () => {
   const [error, setError] = useState(null);
 
   const handleUsernameChange = (e) => {
-    setUsername(e.target.value);
+    const username = document.getElementById("username");
+    setUsername(username.value);
   };
 
   const handlePasswordChange = (e) => {
@@ -38,10 +39,14 @@ const Login = () => {
         })
         .then(
           (res) => {
-            const user = res.data;
-            console.log(user);
-            localStorage.setItem("USER", user);
-            setUser(user);
+            const userdata = res.data;
+
+            localStorage.setItem("USER", JSON.stringify(userdata));
+            
+            const u = JSON.parse(localStorage.getItem("USER"));
+            console.log(u);
+            
+            setUser(userdata);
             setError("");
           },
           (err) => {
@@ -115,16 +120,6 @@ const Login = () => {
                   {passwordError != "" && (
                     <p className="text-danger mb-4">{passwordError}</p>
                   )}
-                  <div className="form-check mb-5 d-flex justify-content-start mb-4">
-                    <input
-                      className="form-check-input me-2"
-                      type="checkbox"
-                      id="remember"
-                    />
-                    <label className="form-check-label" htmlFor="remember">
-                      Remember Me?
-                    </label>
-                  </div>
 
                   <button
                     className="btn btn-primary btn-lg btn-block"

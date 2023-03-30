@@ -2,3 +2,51 @@
   font-family: sans-serif;
   text-align: center;
 }
+
+.navbar {
+  background-color: #484848;
+}
+
+.navbar-brand {
+  color: #fdfeff;
+  font-size: larger;
+  font-weight: bold;
+}
+
+.navbar-brand:hover {
+  color: #ca9929;
+}
+
+.nav-link {
+  color: #fdfeff;
+}
+
+.nav-link:hover {
+  color: #fdfeff;
+  opacity: 0.8;
+}
+
+.nav-link.dropdown-toggle:focus {
+  color: #fdfeff;
+}
+
+.nav-link.active {
+  color: #ca9929 !important;
+  font-weight: bold;
+  font-size: large;
+}
+
+#rules li:hover {
+  color: #ca9929;
+  font-weight: bold;
+}
+
+.about .card:hover {
+  box-shadow: 1px 1px 10px #ca9929, 1px -1px 10px #ca9929, -1px 1px 10px #ca9929,
+    -1px -1px 10px #ca9929;
+}
+
+.functions .card:hover {
+  box-shadow: 1px 1px 10px #484848, 1px -1px 10px #484848, -1px 1px 10px #484848,
+    -1px -1px 10px #484848;
+}

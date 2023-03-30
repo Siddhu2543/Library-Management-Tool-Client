@@ -2,6 +2,7 @@ import { createContext, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./components/Login";
 import Error from "./components/Error";
+import Profile from "./components/Profile";
 import Books from "./components/Books";
 import Publishers from "./components/Publishers";
 import Members from "./components/Members";
@@ -31,14 +32,12 @@ export default function App() {
           <Route path="/" element={<Navbar />}>
             <Route element={<SecureRoute />}>
               <Route index element={<Home />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/books">
                 <Route index element={<Books />} />
                 <Route path=":id" element={<Book />} />
               </Route>
-              <Route path="/publishers">
-                <Route index element={<Publishers />} />
-                <Route path=":id" element={<Publisher />} />
-              </Route>
+              <Route path="/publishers" element={<Publishers />} />
               <Route path="/members">
                 <Route index element={<Members />} />
                 <Route path=":id" element={<Member />} />
