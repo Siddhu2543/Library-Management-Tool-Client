@@ -1,10 +1,11 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const IssueBookModal = ({ book, setBook }) => {
+const IssueBookModal1 = ({ member, setMember }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState([]);
+  const [issues, setIssues] = useState();
 
   const handleSearchQueryChange = (e) => {
     setSearchQuery(e.target.value);
@@ -13,21 +14,24 @@ const IssueBookModal = ({ book, setBook }) => {
       return;
     }
     axios
-      .get(`https://localhost:7279/api/Members/Search/${e.target.value}`)
+      .get(
+        `https://localhost:7279/api/Books/Search/Book-Name/${e.target.value}`
+      )
       .then(
         (res) => {
-          const members = res.data;
-          setSearchResult(members);
+          const books = res.data;
+          setSearchResult(books);
         },
         (res) => {
           setSearchResult([]);
         }
       );
   };
+
   const handleIssueClick = async (e) => {
     const id = e.target.id;
     const res = await axios.get(
-      `https://localhost:7279/api/Issues/CurrentMemberIssueCount/${id}`
+      `https://localhost:7279/api/Issues/CurrentMemberIssueCount/${member.id}`
     );
     const count = res.data;
     if (count >= 3) {
@@ -38,7 +42,7 @@ const IssueBookModal = ({ book, setBook }) => {
     }
 
     const res1 = await axios.get(
-      `https://localhost:7279/api/Issues/IsBookIssuedToMember/${book.id}/${id}`
+      `https://localhost:7279/api/Issues/IsBookIssuedToMember/${id}/${member.id}`
     );
     const boolres = res1.data;
     if (boolres) {
@@ -52,7 +56,7 @@ const IssueBookModal = ({ book, setBook }) => {
       .toISOString()
       .slice(0, 10);
 
-    axios.get(`https://localhost:7279/api/Books/NewIssue/${book.id}`).then(
+    axios.get(`https://localhost:7279/api/Books/NewIssue/${id}`).then(
       (res) => {},
       (res) => {
         if (res.status === 400) {
@@ -63,8 +67,8 @@ const IssueBookModal = ({ book, setBook }) => {
 
     axios
       .post("https://localhost:7279/api/Issues", {
-        bookId: book.id,
-        memberId: id,
+        bookId: id,
+        memberId: member.id,
         issueDate: today,
         dueDate: duedate,
       })
@@ -74,14 +78,14 @@ const IssueBookModal = ({ book, setBook }) => {
           console.log(issue);
           window.alert("Book Issued Successfully");
           axios
-            .get(`https://localhost:7279/api/Books/${book.id}`)
+            .get(`https://localhost:7279/api/Members/${member.id}`)
             .then((res) => {
-              const book = res.data;
-              setBook(book);
+              const member = res.data;
+              setMember(member);
             });
         },
         (res) => {
-          axios.get(`https://localhost:7279/api/Books/CancelIssue/${book.id}`);
+          axios.get(`https://localhost:7279/api/Books/CancelIssue/${id}`);
         }
       );
   };
@@ -89,7 +93,7 @@ const IssueBookModal = ({ book, setBook }) => {
   return (
     <div
       className="modal fade"
-      id="issuebook"
+      id="issuebook1"
       data-bs-backdrop="static"
       data-bs-keyboard="false"
       tabIndex="-1"
@@ -104,36 +108,36 @@ const IssueBookModal = ({ book, setBook }) => {
             <input
               type="search"
               className="form-control mb-3"
-              placeholder="Search Member"
+              placeholder="Search Book by Name"
               value={searchQuery}
               onChange={handleSearchQueryChange}
             />
             {searchResult.length == 0 && (
-              <p className="text-primary">No Member found!</p>
+              <p className="text-primary">No Books found!</p>
             )}
             {searchResult.length > 0 && (
               <div className="row">
-                {searchResult.map((member, i) => (
+                {searchResult.map((book, i) => (
                   <div className="col-12 mb-2" key={i}>
                     <div className="card">
                       <div className="card-body">
                         <div className="d-flex align-items-center">
                           <img
-                            src="/profile-pic.jpeg"
-                            alt={member.name}
+                            src={book.imageURL}
+                            alt={book.title}
                             width="50px"
                             className="me-2"
                           />
                           <div className="d-flex flex-column flex-grow-1">
                             <p className="lead mb-0">
                               <Link
-                                to={`/members/${member.id}`}
+                                to={`/books/${book.id}`}
                                 style={{ textDecoration: "none" }}
                               >
-                                <strong>{member.name}</strong>
+                                <strong>{book.title}</strong>
                               </Link>
                               <br />
-                              {member.address}
+                              by {book.author}
                             </p>
                           </div>
                           <button
@@ -141,7 +145,7 @@ const IssueBookModal = ({ book, setBook }) => {
                             type="button"
                             data-bs-dismiss="modal"
                             onClick={handleIssueClick}
-                            id={member.id}
+                            id={book.id}
                           >
                             Issue
                           </button>
@@ -168,4 +172,4 @@ const IssueBookModal = ({ book, setBook }) => {
   );
 };
 
-export default IssueBookModal;
+export default IssueBookModal1;

@@ -10,10 +10,17 @@ const getPublisherName = async (id) => {
   return res.data.name;
 };
 
+const getIssues = async (id) => {
+  const res = await axios.get(`https://localhost:7279/api/Issues/Books/${id}`);
+  return res.data;
+};
+
 const Book = () => {
   const { id } = useParams();
   const [book, setBook] = useState();
   const [publisher, setPublisher] = useState("");
+  const [issues, setIssues] = useState([]);
+  const [issueMembers, setIssueMembers] = useState([]);
 
   useEffect(() => {
     axios.get(`https://localhost:7279/api/Books/${id}`).then(
@@ -32,11 +39,60 @@ const Book = () => {
       const name = await getPublisherName(book.publisherId);
       setPublisher(name);
     };
-    fetchData();
-  });
+    if (book) fetchData();
+  }, [book]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const membersArr = issues.map(
+        async (issue) =>
+          await axios.get(
+            `https://localhost:7279/api/Members/${issue.memberId}`
+          )
+      );
+
+      Promise.all(membersArr).then((res) => {
+        const members = res.map((r) => r.data);
+        setIssueMembers(members);
+      });
+    };
+    if (issues.length > 0) fetchData();
+  }, [issues]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const issues = await getIssues(book.id);
+      setIssues(issues);
+    };
+    if (book) fetchData();
+  }, [book]);
 
   const changeDateFormat = (date) => {
     return new Date(date).toUTCString().slice(0, 16);
+  };
+
+  const handleRenewClick = (e) => {
+    const id = e.target.id;
+    axios.get(`https://localhost:7279/api/Issues/Renew/${id}`).then((res) => {
+      const issue = res.data;
+      console.log(issue);
+      window.alert("Book renewed!\nDue date is extended by 1 Month!");
+      axios.get(`https://localhost:7279/api/Books/${book.id}`).then((res) => {
+        const book = res.data;
+        setBook(book);
+      });
+    });
+  };
+
+  const handleReturnClick = (e) => {
+    const id = e.target.id;
+    axios.get(`https://localhost:7279/api/Issues/Return/${id}`).then((res) => {
+      window.alert("Book returned!");
+      axios.get(`https://localhost:7279/api/Books/${book.id}`).then((res) => {
+        const book = res.data;
+        setBook(book);
+      });
+    });
   };
 
   if (book == null) {
@@ -132,9 +188,55 @@ const Book = () => {
           </button>
         )}
       </div>
+      <table className="table table-striped caption-top">
+        <caption>Current Issue Details</caption>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Member</th>
+            <th>Issue Date</th>
+            <th>Due Date</th>
+            <th></th>
+          </tr>
+        </thead>
+        {issues.length > 0 ? (
+          <tbody>
+            {issues.map((i, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>
+                  <h5>{issueMembers[index]?.name}</h5>
+                  <p className="lead">{issueMembers[index]?.address}</p>
+                </td>
+                <td>{changeDateFormat(i.issueDate)}</td>
+                <td>{changeDateFormat(i.dueDate)}</td>
+                <td>
+                  <button
+                    className="btn btn-primary mb-1"
+                    onClick={handleReturnClick}
+                    id={i.id}
+                  >
+                    Return Book
+                  </button>
+                  <br />
+                  <button
+                    className="btn btn-secondary"
+                    onClick={handleRenewClick}
+                    id={i.id}
+                  >
+                    Renew Book
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        ) : (
+          <caption>Book is not issued to any member currently</caption>
+        )}
+      </table>
       <UpdateBookModal book={book} setBook={setBook} />
       <RemoveBookModal book={book} />
-      <IssueBookModal book={book} />
+      <IssueBookModal book={book} setBook={setBook} />
     </>
   );
 };
