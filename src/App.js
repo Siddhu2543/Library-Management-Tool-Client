@@ -7,7 +7,6 @@ import Books from "./components/Books";
 import Publishers from "./components/Publishers";
 import Members from "./components/Members";
 import Book from "./components/Book";
-import Publisher from "./components/Publisher";
 import Member from "./components/Member";
 import Issue from "./components/Issue";
 import Home from "./components/Home";
